@@ -1,6 +1,7 @@
 module.exports = function(grunt) {
 
   grunt.loadNpmTasks('grunt-mocha-test');
+  grunt.loadNpmTasks('grunt-shell');
 
   function getLintConfig() {
     return {
@@ -67,11 +68,27 @@ module.exports = function(grunt) {
     watch: {
       files: ['grunt.js', 'src/**/*.js', 'test/src/**/*.js'],
       tasks: ['default']
+    },
+    shell: {
+      generateKeys: {
+        command: process.platform === 'win32' ? './keys.bat' : './keys.sh'
+      },
+      jitsuDeploy: {
+        command: (process.platform === 'win32' ? './jitsu.bat' : './jitsu.sh') + ' deploy --confirm'
+      },
+      _options: {
+        stdout: true,
+        stderr: true,
+        failOnError: true
+      }
     }
   });
 
   // Default task.
   grunt.registerTask('default', 'lint mochaTest:test');
+
+  // Deploy task.
+  grunt.registerTask('deploy', 'shell:generateKeys lint mochaTest:test shell:jitsuDeploy');
 
   // Documentation task.
   grunt.registerTask('doc', 'mochaTest:doc');

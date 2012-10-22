@@ -13,12 +13,12 @@ describe('server', function() {
       'exit'
     ], done);
     var childProcess = spawn('node', ['src/server.js']);
-    childProcess.stdout.setEncoding('utf8');
     childProcess.stderr.setEncoding('utf8');
     childProcess.stderr.on('data', function(data) {
       // shouldn't get here and checklist will error if we do
       checklist.check(data);
     });
+    childProcess.stdout.setEncoding('utf8');
     childProcess.stdout.on('data', function(data) {
       checklist.check(data);
       var connection = net.connect({
