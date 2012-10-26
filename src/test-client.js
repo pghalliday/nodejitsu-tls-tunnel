@@ -4,7 +4,8 @@ var fs = require('fs'),
 
 var host = process.argv[2] || 'pghalliday.jit.su',
     port = process.argv[3] || 80,
-    privatePort = process.argv[4] || 8080;
+    privatePort = process.argv[4] || 8080,
+    exitDelay = process.argv[5] || 0;
 
 var server = http.createServer(function(request, response) {
   response.end('Hello, world!');
@@ -22,15 +23,35 @@ var client = new Client({
 });
 
 server.listen(privatePort, function() {
-  client.on('end', function() {
-    console.log('Connection ended');
-    server.close();
-  });
   client.on('error', function(error) {
-    console.log('Connection error: ' + error);
-    server.close();
+    console.error('Connection error: ' + error);
+    setTimeout(function() {
+      process.exit(1);
+    }, exitDelay);
   });
   client.connect(function() {
     console.log('Connected to ' + host + ':' + port);
+    http.get('http://' + host + ':' + port, function(response) {
+      response.setEncoding();
+      response.on('data', function(data) {
+        if (data === 'Hello, world!') {
+          console.log('HTTP tunnelling succeeded');
+          setTimeout(function() {
+            process.exit(0);
+          }, exitDelay);
+        } else {
+          console.error('HTTP tunnelling received incorrect data: ' + data);
+          setTimeout(function() {
+            process.exit(2);
+          }, exitDelay);
+        }
+      });
+      response.on('error', function(error) {
+        console.error('HTTP tunnelling error: ' + error);
+        setTimeout(function() {
+          process.exit(3);
+        }, exitDelay);
+      });
+    });
   });
 });

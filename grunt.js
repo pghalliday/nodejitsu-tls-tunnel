@@ -79,6 +79,9 @@ module.exports = function(grunt) {
       jitsuDeploy: {
         command: (process.platform === 'win32' ? '.\\bin\\jitsu.bat' : './bin/jitsu.sh') + ' deploy --confirm'
       },
+      verifyDeploy: {
+        command: 'node ./src/test-client.js'
+      },
       _options: {
         stdout: true,
         stderr: true,
@@ -92,6 +95,9 @@ module.exports = function(grunt) {
 
   // Deploy task.
   grunt.registerTask('deploy', 'shell:generateKeys lint mochaTest:test shell:jitsuDeploy');
+
+  // Verify deployment task.
+  grunt.registerTask('verify', 'shell:verifyDeploy');
 
   // Documentation task.
   grunt.registerTask('doc', 'mochaTest:doc');
