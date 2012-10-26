@@ -9,6 +9,6 @@
     "node": "0.8.x"
   },
   "dependencies": {
-    "tls-tunnel": "*"
+    "single-tls-tunnel": "0.0.2"
   }
 }

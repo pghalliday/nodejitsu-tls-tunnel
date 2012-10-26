@@ -1,16 +1,15 @@
-var Server = require('tls-tunnel').Server,
+var Server = require('single-tls-tunnel').Server,
     fs = require('fs');
 
+var port = process.argv[2] || 80;
+
 var server = new Server({
-    port: 8080,
     key: fs.readFileSync('./keys/server-key.pem'),
     cert: fs.readFileSync('./keys/server-cert.pem'),
     ca: [fs.readFileSync('./keys/client-cert.pem')],
-    forwardedPorts: {
-      start: 8081,
-      count: 10
-    }
+    requireCert: true,
+    rejectUnauthorized: true
 });
-server.start(function() {
+server.listen(port, function() {
   console.log('Started');
 });
