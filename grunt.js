@@ -79,6 +79,9 @@ module.exports = function(grunt) {
       jitsuDeploy: {
         command: (process.platform === 'win32' ? '.\\bin\\jitsu.bat' : './bin/jitsu.sh') + ' deploy --confirm'
       },
+      haibuDeploy: {
+        command: 'node ./src/test-deploy.js'
+      },
       verifyDeploy: {
         command: 'node ./src/test-client.js'
       },

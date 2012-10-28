@@ -39,7 +39,7 @@ describe('test-client', function() {
       childProcess.stdout.setEncoding('utf8');
       var stdoutChecklist = new Checklist([
         'Connected to ' + HOST + ':' + PORT + '\n',
-        'HTTP tunnelling succeeded'
+        'HTTP tunnelling succeeded\n'
       ], function(error) {
         checklist.check('stdout', error);
       });

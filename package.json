@@ -4,12 +4,12 @@
   "scripts": {
     "start": "src/server.js"
   },
-  "version": "0.0.0-3",
+  "version": "0.0.0-8",
   "engines": {
     "node": "0.8.x"
   },
   "dependencies": {
-    "single-tls-tunnel": "0.0.2"
+    "single-tls-tunnel": "0.1.0"
   },
   "devDependencies": {
     "grunt": "~0.3.17",

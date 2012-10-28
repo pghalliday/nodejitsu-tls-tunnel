@@ -1,6 +1,6 @@
 {
   "name": "jitsu",
-  "subdomain": "pghalliday.jitsu",
+  "subdomain": "pghalliday",
   "scripts": {
     "start": "server.js"
   },
