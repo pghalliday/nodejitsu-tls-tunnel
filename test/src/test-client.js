@@ -38,6 +38,7 @@ describe('test-client', function() {
       });
       childProcess.stdout.setEncoding('utf8');
       var stdoutChecklist = new Checklist([
+        'Listening on ' + PRIVATE_PORT + '\n',
         'Connected to ' + HOST + ':' + PORT + '\n',
         'HTTP tunnelling succeeded\n'
       ], function(error) {
@@ -58,6 +59,7 @@ describe('test-client', function() {
   it('should error if it fails to connect to passed in port', function(done) {
     this.timeout(5000);
     var checklist = new Checklist([
+      'Listening on ' + PRIVATE_PORT + '\n',
       'Connection error: Error: connect ECONNREFUSED\n',
       1
     ], done);
@@ -72,10 +74,82 @@ describe('test-client', function() {
     });
     childProcess.stdout.setEncoding('utf8');
     childProcess.stdout.on('data', function(data) {
-      checklist.check(data, new Error('child process output on stdout: ' + data));
+      checklist.check(data);
     });
     childProcess.on('exit', function(code) {
       checklist.check(code);      
+    });
+  });
+
+  it('should work twice', function(done) {
+    this.timeout(5000);
+    var checklist = new Checklist([
+      'stdout',
+      'server closed',
+      0,
+      'stdout',
+      'server closed',
+      0
+    ], {debug: true}, done);
+
+    var server = new Server({
+        key: fs.readFileSync('./keys/server-key.pem'),
+        cert: fs.readFileSync('./keys/server-cert.pem'),
+        ca: [fs.readFileSync('./keys/client-cert.pem')],
+        requireCert: true,
+        rejectUnauthorized: true
+    });
+
+    server.listen(PORT, function() {
+      var childProcess1 = spawn('node', ['src/test-client.js', HOST, PORT, PRIVATE_PORT, EXIT_DELAY], {
+        stdio: 'pipe',
+        detached: false
+      });
+    
+      childProcess1.stderr.setEncoding('utf8');
+      childProcess1.stderr.on('data', function(data) {
+        checklist.check(data, new Error('child process output on stderr: ' + data));
+      });
+      childProcess1.stdout.setEncoding('utf8');
+      var stdoutChecklist = new Checklist([
+        'Listening on ' + PRIVATE_PORT + '\n',
+        'Connected to ' + HOST + ':' + PORT + '\n',
+        'HTTP tunnelling succeeded\n'
+      ], {debug: true}, function(error) {
+        checklist.check('stdout', error);
+      });
+      childProcess1.stdout.on('data', function(data) {
+        stdoutChecklist.check(data);
+      });
+      childProcess1.on('exit', function(code) {
+        checklist.check(code);      
+        var childProcess2 = spawn('node', ['src/test-client.js', HOST, PORT, PRIVATE_PORT, EXIT_DELAY], {
+          stdio: 'pipe',
+          detached: false
+        });
+      
+        childProcess2.stderr.setEncoding('utf8');
+        childProcess2.stderr.on('data', function(data) {
+          checklist.check(data, new Error('child process output on stderr: ' + data));
+        });
+        childProcess2.stdout.setEncoding('utf8');
+        var stdoutChecklist = new Checklist([
+          'Listening on ' + PRIVATE_PORT + '\n',
+          'Connected to ' + HOST + ':' + PORT + '\n',
+          'HTTP tunnelling succeeded\n'
+        ], {debug: true}, function(error) {
+          checklist.check('stdout', error);
+        });
+        childProcess2.stdout.on('data', function(data) {
+          stdoutChecklist.check(data);
+        });
+        childProcess2.on('exit', function(code) {
+          checklist.check(code);      
+          server.close(function() {
+            checklist.check('server closed');
+          });
+        });
+      });
     });
   });
 });

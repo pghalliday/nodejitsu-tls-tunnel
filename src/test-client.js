@@ -23,6 +23,7 @@ var client = new Client({
 });
 
 server.listen(privatePort, function() {
+  console.log('Listening on ' + privatePort);
   client.on('error', function(error) {
     console.error('Connection error: ' + error);
     setTimeout(function() {
