@@ -85,12 +85,11 @@ describe('test-client', function() {
     this.timeout(5000);
     var checklist = new Checklist([
       'stdout',
-      'server closed',
       0,
       'stdout',
       'server closed',
       0
-    ], {debug: true}, done);
+    ], done);
 
     var server = new Server({
         key: fs.readFileSync('./keys/server-key.pem'),
@@ -115,7 +114,7 @@ describe('test-client', function() {
         'Listening on ' + PRIVATE_PORT + '\n',
         'Connected to ' + HOST + ':' + PORT + '\n',
         'HTTP tunnelling succeeded\n'
-      ], {debug: true}, function(error) {
+      ], function(error) {
         checklist.check('stdout', error);
       });
       childProcess1.stdout.on('data', function(data) {
@@ -137,7 +136,7 @@ describe('test-client', function() {
           'Listening on ' + PRIVATE_PORT + '\n',
           'Connected to ' + HOST + ':' + PORT + '\n',
           'HTTP tunnelling succeeded\n'
-        ], {debug: true}, function(error) {
+        ], function(error) {
           checklist.check('stdout', error);
         });
         childProcess2.stdout.on('data', function(data) {
