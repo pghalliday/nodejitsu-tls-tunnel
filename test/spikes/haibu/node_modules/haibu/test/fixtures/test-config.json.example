@@ -1,0 +1,40 @@
+{
+  "auth": {
+    "username": "your-rackspace-username",
+    "apiKey": "your-rackspace-api-key"
+  },
+  "log": {
+    "logAll": true,
+    "namespaces": {
+      "drone": "user",
+      "git": "haibu",
+      "npm": "haibu",
+      "plugin": "haibu",
+      "repo": "haibu",
+      "spawn": "haibu",
+      "tar": "haibu",
+      "user": "user",
+      "error": "errors"
+    },
+    "console": {
+      "silent": true
+    },
+    "loggly": {
+      "json": true,
+      "subdomain": "your-loggly-subdomain",
+      "inputs": {
+        "errors": "a-really-long-input-token",
+        "default": "a-really-long-input-token",
+        "user": "a-really-long-input-token"
+      }
+    }
+  },
+  "exceptions": {
+    "loggly": {
+      "json": true,
+      "subdomain": "your-loggly-subdomain",
+      "inputToken": "a-really-long-input-token"
+    }
+  }
+}
+

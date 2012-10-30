@@ -1,0 +1,86 @@
+#!/usr/bin/env node
+
+var path = require('path'),
+    _send = process.send || function(){},
+    async = require('async'),
+    carapace = require('../lib/carapace');
+
+//
+// Extract the carapace CLI arguments for this
+// process.
+//
+var argv = carapace.cli.argv();
+carapace.script = argv._[0];
+
+function onPluginError (info) {
+  //
+  // If any of the plugins have failed to load then short
+  // circuit this carapace process because it requested them all.
+  //
+  console.log('Error loading plugin: ' + info.plugin);
+  console.log(info.error.message);
+  console.dir(info.error.stack.split('\n'));
+  process.exit(1);
+}
+
+//
+// Setup the passthru arguments.
+//
+carapace.argv = carapace.cli.extract(null, carapace.script);
+
+function configure (next) {
+  if (!Array.isArray(argv.plugin)) {
+    argv.plugin = [argv.plugin];
+  }
+
+  //
+  // Listen for errors when loading plugins
+  //
+  carapace.on('plugin::error', onPluginError);
+
+  var plugins = argv.plugin.map(function (plugin) {
+    return carapace.load(plugin);
+  });
+
+  carapace.use(plugins, function () {
+    var names = argv.plugin.map(function (plugin) {
+      return path.basename(plugin, '.js');
+    });
+
+    async.forEachSeries(names, function (plugin, next) {
+      if (!carapace[plugin]) {
+        return onPluginError({
+          plugin: plugin,
+          error: new Error('No plugin `' + plugin + '` was found after loading.')
+        });
+      }
+
+      carapace[plugin](argv[plugin], function (err) {
+        return !err ? next() : onPluginError({
+          plugin: plugin,
+          error: err
+        });
+      });
+    }, next);
+  });
+}
+
+function runAndReport () {
+  carapace.run(carapace.script, true, function () {
+    _send.call(process, 'carapace has wrapped: ' + carapace.script);
+
+    function logArray (array, msg, delim) {
+      return array && array.length
+        ? _send.call(process, msg + array.join(delim))
+        : null;
+    }
+
+    logArray(carapace.argv, 'with arguments: ', ' ');
+    logArray(Object.keys(carapace._module.exports), '  and exports: ', ', ');
+  });
+}
+
+return argv.plugin
+  ? configure(runAndReport)
+  : runAndReport();
+
