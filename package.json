@@ -7,8 +7,5 @@
   "version": "0.0.0-21",
   "engines": {
     "node": "0.8.x"
-  },
-  "bundledDependencies": [
-    "single-tls-tunnel"
-  ]
+  }
 }
